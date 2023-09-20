@@ -12,7 +12,7 @@ from settings import *
 from models.request_models import *
 from fastapi.responses import JSONResponse
 from fastapi import Request
-
+from fastapi.exceptions import RequestValidationError
 app = FastAPI()
 
 # Şifreleme için
@@ -24,6 +24,13 @@ async def custom_http_exception_handler(request, exc):
         content=exc.detail,
         status_code=exc.status_code)
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        content={"success": False, "unsuccess_reason": "Unexpected request!"},
+        status_code=400
+    )
+
 def get_db():
     db = SessionLocal()
     try:
@@ -32,35 +39,34 @@ def get_db():
         db.close()
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token",auto_error=False)
 
 async def get_current_user(token: str = Security(oauth2_scheme), db: Session = Depends(get_db), request: Request = None):
     if not token:
         raise HTTPException(status_code=401, detail={"success": False, "unsuccess_reason": "Not authenticated."})
+
     try:
-        payload = decode_access_token(token)
+        payload = await decode_access_token(token)
     except JWTError:
-        raise HTTPException(status_code=401, detail={"success": False, "unsuccess_reason": "Invalid token."})
-    try:
+        raise HTTPException(status_code=401, detail={"success": False, "unsuccess_reason": "Invalid token.1"})
 
-        username: str = payload.get("sub")
-        if username is None:
-            raise HTTPException(status_code=401, detail={"success": False, "unsuccess_reason": "Invalid token."})
-    except Exception:
-            raise HTTPException(status_code=401, detail={"success": False, "unsuccess_reason": "Invalid token."})
-    try:
 
-        token_data = db.query(Token).filter(Token.Token == token).first()
-        if token_data is None:
-            raise HTTPException(status_code=401, detail={"success": False, "unsuccess_reason": "Token not found."})
+    if payload is None:
+        raise HTTPException(status_code=401, detail={"success": False, "unsuccess_reason": "Invalid token.2"})
 
-        if token_data.ExpiresAt < datetime.utcnow():
-            raise HTTPException(status_code=401, detail={"success": False, "unsuccess_reason": "Token has expired."})
-    except Exception:
-         raise HTTPException(status_code=401, detail={"success": False, "unsuccess_reason": "Invalid token."})
-    
+    username: str = payload.get("sub")
+    if username is None:
+        raise HTTPException(status_code=401, detail={"success": False, "unsuccess_reason": "Invalid token.2"})
+
+    token_data = db.query(Token).filter(Token.Token == token).first()
+    if token_data is None:
+        raise HTTPException(status_code=401, detail={"success": False, "unsuccess_reason": "Token not found."})
+
+    if token_data.ExpiresAt < datetime.utcnow():
+        raise HTTPException(status_code=401, detail={"success": False, "unsuccess_reason": "Token has expired."})
 
     return username
+
 
 
 @app.post("/user_login/", response_model=dict)
@@ -74,7 +80,7 @@ async def user_login(userLogin:UserLogin, db: Session = Depends(get_db)):
             return {"success": False, "unsuccess_reason": "Yanlış şifre"}
 
         access_token = await create_access_token(data={"sub": userLogin.password})  # Changed to username
-        expires_at = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expires_at = datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
         db_token = Token(UserId=user.Id, Token=access_token, ExpiresAt=expires_at, CreatedAt=datetime.now())
         db.add(db_token)
@@ -89,7 +95,7 @@ async def create_customer(customer: CustomerCreate, db: Session = Depends(get_db
     existing_customer = db.query(Customer).filter(Customer.Gsm == customer.gsm).first()
     if existing_customer:
         return {"success": False, "unsuccess_reason": "Bu GSM numarası zaten kayıtlı"}
-
+    
     db_customer = Customer(
         Name=customer.name,
         Surname=customer.surname,
