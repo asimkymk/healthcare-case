@@ -1,7 +1,5 @@
 from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from . import db
 
 class Tokens(db.Model):
     __tablename__ = 'Tokens'
