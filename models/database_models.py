@@ -2,7 +2,6 @@ from datetime import datetime
 from sqlalchemy import ForeignKey, create_engine, Column, Integer, String, DateTime, Float
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-import pyodbc
 from settings import *
 
 
