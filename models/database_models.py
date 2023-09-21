@@ -3,8 +3,8 @@ from sqlalchemy import ForeignKey, create_engine, Column, Integer, String, DateT
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 import pyodbc
+from settings import *
 
-DATABASE_URL = "mssql+pyodbc://sa:12341234@ASIM/KocHealthcare?driver=ODBC+Driver+17+for+SQL+Server"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
