@@ -4,6 +4,10 @@
 
 This project is a FastAPI-based RESTful API that provides features like user authentication, customer management, and purchase summary reports.
 
+## Database
+
+![DB](./imgs/db.png "DB")
+
 ## Installation
 
 ### Prerequisites
