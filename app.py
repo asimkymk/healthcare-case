@@ -3,10 +3,9 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import JWTError
 from datetime import datetime, timedelta
-import models.database_models as database_models
 from models.database_models import SessionLocal, User, Token, Customer, Purchase
 from fastapi.security import OAuth2PasswordBearer
-from core.password_generator import hash_password, verify_password
+from core.password_generator import verify_password
 from core.tokenizer import create_access_token, decode_access_token
 from settings import ACCESS_TOKEN_EXPIRE_MINUTES
 from models.request_models import UserLogin, CustomerCreate, PurchaseCreate, CustomerUpdate, DateRange
@@ -16,8 +15,9 @@ import pandas as pd
 import base64
 from io import BytesIO
 from models.response_models import CustomHTTPException, ErrorResponse
+
+
 app = FastAPI()
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 async def raise_http_exception(detail: str, status_code: int = 400):
     raise CustomHTTPException(status_code=status_code, detail=ErrorResponse(success=False, unsuccess_reason=detail))
