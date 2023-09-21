@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
-import database_models
-from database_models import SessionLocal, User, Token, Customer, Purchase
+import models.database_models as database_models
+from models.database_models import SessionLocal, User, Token, Customer, Purchase
 from fastapi.security import OAuth2PasswordBearer
 from core.password_generator import hash_password, verify_password
 from core.tokenizer import *
