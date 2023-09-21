@@ -20,7 +20,6 @@ from io import BytesIO
 
 app = FastAPI()
 
-# Şifreleme için
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 @app.exception_handler(HTTPException)
