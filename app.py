@@ -150,7 +150,7 @@ async def update_customer(customer_id: int, customer: CustomerUpdate, db: Sessio
     except:
         await raise_http_exception("Database error!")
 
-@app.api_route("/update_customer/", methods=["GET", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD", "CONNECT", "TRACE"])
+@app.api_route("/update_customer/", methods=["GET", "POST", "DELETE", "PATCH", "OPTIONS", "HEAD", "CONNECT", "TRACE"])
 async def catch_all_methods_for_user_login(request: Request):
     await raise_http_exception(f"Method {request.method} not allowed", 405)
 
