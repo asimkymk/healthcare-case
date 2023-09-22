@@ -41,7 +41,11 @@ python app.py
 
 ### First Usage
 
-Before the running server, for the first initialization, please set MSSql database server information in `DATABASE_URL` into `settings.py`.
+Before the running server, for the first initialization, please set MSSql database server information in `DATABASE_URL` into `settings.py`. And, run the `create_tables.py` to set database tables with the following:
+
+```bash
+python create_tables.py
+```
 
 ## Endpoints
 
